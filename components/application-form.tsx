@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowRight, Loader2 } from "lucide-react"
 
-const WHATSAPP_NUMBER = "34616094517" // Numéro WhatsApp au format international sans +
+const WHATSAPP_NUMBER = "34616094517" // Numéro WhatsApp au format international sans + (34 616 09 45 17)
 
 export function ApplicationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -59,12 +59,29 @@ ${situation}
 Demande reçue le ${new Date().toLocaleDateString("fr-FR")} à ${new Date().toLocaleTimeString("fr-FR")}`
 
     const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/"34616094517" ${WHATSAPP_NUMBER}?text=${encodedMessage}`
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`
+    
+    // Log pour débogage
+    console.log('URL WhatsApp générée:', whatsappUrl)
+    console.log('Longueur du message encodé:', encodedMessage.length)
 
     // Simuler un délai
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    window.open(whatsappUrl, "_blank")
+    // Essayer d'abord avec window.location.href comme alternative
+    try {
+      window.open(whatsappUrl, "_blank")
+    } catch (error) {
+      console.error('Erreur avec window.open:', error)
+      // Essayer une autre méthode si window.open échoue
+      const link = document.createElement('a')
+      link.href = whatsappUrl
+      link.target = '_blank'
+      link.rel = 'noopener noreferrer'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
 
     setIsSubmitting(false)
     setIsSubmitted(true)
